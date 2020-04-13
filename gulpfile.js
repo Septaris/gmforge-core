@@ -1,21 +1,28 @@
 //gulpfile.js
-var gulp = require('gulp');
-var concat = require('gulp-concat');
-var rename = require('gulp-rename');
-var uglify = require('gulp-uglify');
-var es6transpiler = require('gulp-es6-transpiler');
+const gulp = require('gulp');
+const concat = require('gulp-concat');
 
 //script paths
-var jsFiles = 'src/scripts/**/*.js',
-    jsDest = 'public/bin';
+const jsDest = 'public/bin';
+const coreFiles = 'src/scripts/**/*.js';
+const standaloneFiles = 'src/standalone/**/*.js';
 
-gulp.task('core', function() {
-    return gulp.src(jsFiles)
-        .pipe(concat('core.js'))
-        .pipe(gulp.dest('/dist'))
-        .pipe(rename('core.js'))
-        //.pipe(uglify())
-        .pipe(gulp.dest(jsDest));
-});
+gulp.task('core', () => (
+  gulp.src(coreFiles)
+    .pipe(concat('core.js'))
+    .pipe(gulp.dest(jsDest))
+));
 
-gulp.task('all', ['core']);
+gulp.task('standalone', () => (
+  gulp.src(standaloneFiles)
+    .pipe(concat('standalone.js'))
+    .pipe(gulp.dest(jsDest))
+));
+
+gulp.task('core.min', () => (
+  gulp.src(coreFiles)
+    .pipe(concat('core.js'))
+    .pipe(gulp.dest(jsDest))
+));
+
+gulp.task('all', gulp.series('core', 'standalone'));

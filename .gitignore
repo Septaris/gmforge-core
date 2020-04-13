@@ -3,3 +3,5 @@ public/custom/
 public/workshop/
 public/worlds/
 public/bin/core\.js
+public/bin/standalone\.js
+!.keep
