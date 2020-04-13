@@ -235,232 +235,222 @@ function openSplash(secondOpen, tab){
         newGame.append("Start a New Game");
         newGame.click(function(){
           $.ajax({
-            url: "/workshopSync",
+            url: '/gameList',
             error: function(code) {
               console.log(code);
             },
             dataType: 'json',
-            success: function(list) {
-              $.ajax({
-                 url: '/gameList',
+            success: function(data) {
+             game.locals["gameList"] = data.list;
+
+             var slot = $(this).attr("index");
+             var frame = layout.page({title: "Creating Game...", prompt: "", width : "800px", blur: 0.5, id: "gamePreview", style : {"z-index" : "100000000000000"}});
+
+             var confirmation = $("<div>").appendTo(frame);
+             confirmation.addClass("flexcolumn");
+
+             game.locals["createSession"] = sync.obj("createSession");
+             game.locals["createSession"].data = {
+               name : sync.newValue("Enter Your Game Title", "An adventure begins..."),
+               password : sync.newValue("Enter Your Password"),
+               capacity : sync.newValue("Max Players", 1, 1, 10),
+               img : sync.newValue("Image Goes Here")
+             };
+
+
+             var infoPanel = $("<div>").appendTo(confirmation);
+             infoPanel.addClass("flexcolumn");
+
+             var panel = $("<div>").appendTo(infoPanel);
+
+             var panelWraap = $("<div>").appendTo(panel);
+             panelWraap.addClass("flexmiddle");
+
+             var buttonWrap = $("<div>").appendTo(panelWraap);
+             buttonWrap.addClass("flexmiddle");
+             buttonWrap.hide();
+
+             var button = $("<button>").appendTo(buttonWrap);
+             button.addClass("highlight alttext hover2");
+             button.text("V2 Systems (HTML)");
+             button.click(function(){
+               $(this).parent().children().removeClass("highlight").addClass("background");
+               $(this).addClass("highlight").removeClass("background");
+               gameList.children().each(function(){
+                 if ($(this).attr("build")) {
+                   $(this).show();
+                 }
+                 else {
+                   $(this).hide();
+                 }
+               });
+             });
+
+             var button = $("<button>").appendTo(buttonWrap);
+             button.addClass("background alttext hover2");
+             button.text("V1 Systems (JSON)");
+             button.click(function(){
+               $(this).parent().children().removeClass("highlight").addClass("background");
+               $(this).addClass("highlight").removeClass("background");
+               gameList.children().each(function(){
+                 if ($(this).attr("build")) {
+                   $(this).hide();
+                 }
+                 else {
+                   $(this).show();
+                 }
+               });
+             });
+
+             panelWraap.append("<div class='lrpadding lrmargin'></div>");
+             var refreshWorkshop = genIcon("refresh", "Refresh").appendTo(panelWraap);
+             refreshWorkshop.click(function(){
+               $.ajax({
+                 url: "/workshopSync",
                  error: function(code) {
                    console.log(code);
                  },
                  dataType: 'json',
-                 success: function(data) {
-                  game.locals["gameList"] = data.list;
-
-                  var slot = $(this).attr("index");
-                  var frame = layout.page({title: "Creating Game...", prompt: "", width : "800px", blur: 0.5, id: "gamePreview", style : {"z-index" : "100000000000000"}});
-
-                  var confirmation = $("<div>").appendTo(frame);
-                  confirmation.addClass("flexcolumn");
-
-                  game.locals["createSession"] = sync.obj("createSession");
-                  game.locals["createSession"].data = {
-                    name : sync.newValue("Enter Your Game Title", "An adventure begins..."),
-                    password : sync.newValue("Enter Your Password"),
-                    capacity : sync.newValue("Max Players", 1, 1, 10),
-                    img : sync.newValue("Image Goes Here")
-                  };
-
-
-                  var infoPanel = $("<div>").appendTo(confirmation);
-                  infoPanel.addClass("flexcolumn");
-
-                  var panel = $("<div>").appendTo(infoPanel);
-
-                  var panelWraap = $("<div>").appendTo(panel);
-                  panelWraap.addClass("flexmiddle");
-
-                  var buttonWrap = $("<div>").appendTo(panelWraap);
-                  buttonWrap.addClass("flexmiddle");
-                  buttonWrap.hide();
-
-                  var button = $("<button>").appendTo(buttonWrap);
-                  button.addClass("highlight alttext hover2");
-                  button.text("V2 Systems (HTML)");
-                  button.click(function(){
-                    $(this).parent().children().removeClass("highlight").addClass("background");
-                    $(this).addClass("highlight").removeClass("background");
-                    gameList.children().each(function(){
-                      if ($(this).attr("build")) {
-                        $(this).show();
-                      }
-                      else {
-                        $(this).hide();
-                      }
-                    });
-                  });
-
-                  var button = $("<button>").appendTo(buttonWrap);
-                  button.addClass("background alttext hover2");
-                  button.text("V1 Systems (JSON)");
-                  button.click(function(){
-                    $(this).parent().children().removeClass("highlight").addClass("background");
-                    $(this).addClass("highlight").removeClass("background");
-                    gameList.children().each(function(){
-                      if ($(this).attr("build")) {
-                        $(this).hide();
-                      }
-                      else {
-                        $(this).show();
-                      }
-                    });
-                  });
-
-                  panelWraap.append("<div class='lrpadding lrmargin'></div>");
-                  var refreshWorkshop = genIcon("refresh", "Refresh").appendTo(panelWraap);
-                  refreshWorkshop.click(function(){
-                    $.ajax({
-                      url: "/workshopSync",
+                 success: function(list) {
+                   $.ajax({
+                      url: '/gameList',
                       error: function(code) {
                         console.log(code);
+                        newGame.click();
+
                       },
                       dataType: 'json',
-                      success: function(list) {
-                        $.ajax({
-                           url: '/gameList',
-                           error: function(code) {
-                             console.log(code);
-                             newGame.click();
-
-                           },
-                           dataType: 'json',
-                           success: function(data) {
-                             game.locals["gameList"] = data.list;
-                             newGame.click();
-                             sendAlert({text : "success"});
-                           },
-                           type : "GET",
-                        });
+                      success: function(data) {
+                        game.locals["gameList"] = data.list;
+                        newGame.click();
+                        sendAlert({text : "success"});
                       },
-                      type: 'GET'
-                    });
-                  });
+                      type : "GET",
+                   });
+                 },
+                 type: 'GET'
+               });
+             });
 
-                  panelWraap.append("<div class='lrpadding lrmargin'></div>");
-                  var installWorkshop = genIcon("wrench", "Browse the Workshop!").appendTo(panelWraap);
-                  installWorkshop.attr("target", "_");
-                  installWorkshop.attr("href", "https://steamcommunity.com/app/842250/workshop/");
+             panelWraap.append("<div class='lrpadding lrmargin'></div>");
+             var installWorkshop = genIcon("wrench", "Browse the Workshop!").appendTo(panelWraap);
+             installWorkshop.attr("target", "_");
+             installWorkshop.attr("href", "https://steamcommunity.com/app/842250/workshop/");
 
-                  var gameList = $("<div>").appendTo(panel);
-                  gameList.addClass("flexrow flexwrap smooth");
+             var gameList = $("<div>").appendTo(panel);
+             gameList.addClass("flexrow flexwrap smooth");
 
-                  for (var i in game.locals["gameList"]) {
-                    if (game.locals["gameList"][i].show !== false) {
-                      var gameSelect = $("<div>").appendTo(gameList);
-                      gameSelect.addClass("hover2 outline smooth");
-                      gameSelect.attr("build", game.locals["gameList"][i].build);
-                      if (!game.locals["gameList"][i].build) {
-                        gameSelect.hide();
-                        buttonWrap.show();
-                      }
-                      if (game.locals["createSession"].data.game == i) {
-                        gameSelect.addClass("highlight");
-                      }
-                      gameSelect.css("background-image", "url('"+sync.rawVal(game.locals["gameList"][i].info.img)+"')");
-                      gameSelect.css("background-repeat", "no-repeat");
-                      gameSelect.css("background-position", "center");
-                      gameSelect.css("background-size", "cover");
-                      gameSelect.css("width", "9em");
-                      gameSelect.css("height", "6em");
-                      if (game.locals["gameList"][i].beta) {
-                        gameSelect.css("position", "relative");
-                        gameSelect.append("<highlight style='-webkit-text-stroke-color:white; position : absolute; top:0; left:0; font-size:0.8em; font-family:Arial;' class='highlight outline smooth lrpadding'>Beta</highlight>");
-                      }
-                      gameSelect.attr("index", i);
-                      gameSelect.attr("img", sync.rawVal(game.locals["gameList"][i].info.img));
-                      gameSelect.click(function() {
+             for (var i in game.locals["gameList"]) {
+               if (game.locals["gameList"][i].show !== false) {
+                 var gameSelect = $("<div>").appendTo(gameList);
+                 gameSelect.addClass("hover2 outline smooth");
+                 gameSelect.attr("build", game.locals["gameList"][i].build);
+                 if (!game.locals["gameList"][i].build) {
+                   gameSelect.hide();
+                   buttonWrap.show();
+                 }
+                 if (game.locals["createSession"].data.game == i) {
+                   gameSelect.addClass("highlight");
+                 }
+                 gameSelect.css("background-image", "url('"+sync.rawVal(game.locals["gameList"][i].info.img)+"')");
+                 gameSelect.css("background-repeat", "no-repeat");
+                 gameSelect.css("background-position", "center");
+                 gameSelect.css("background-size", "cover");
+                 gameSelect.css("width", "9em");
+                 gameSelect.css("height", "6em");
+                 if (game.locals["gameList"][i].beta) {
+                   gameSelect.css("position", "relative");
+                   gameSelect.append("<highlight style='-webkit-text-stroke-color:white; position : absolute; top:0; left:0; font-size:0.8em; font-family:Arial;' class='highlight outline smooth lrpadding'>Beta</highlight>");
+                 }
+                 gameSelect.attr("index", i);
+                 gameSelect.attr("img", sync.rawVal(game.locals["gameList"][i].info.img));
+                 gameSelect.click(function() {
 
-                        game.locals["createSession"].data.game = $(this).attr("index");
-                        game.locals["createSession"].data.img = $(this).attr("img");
-                        game.locals["createSession"].data.templates = game.locals["gameList"][$(this).attr("index")];
-                        game.locals["createSession"].update();
+                   game.locals["createSession"].data.game = $(this).attr("index");
+                   game.locals["createSession"].data.img = $(this).attr("img");
+                   game.locals["createSession"].data.templates = game.locals["gameList"][$(this).attr("index")];
+                   game.locals["createSession"].update();
 
-                        sheetPreview.empty();
+                   sheetPreview.empty();
 
-                        var sheet = $("<img>").appendTo(sheetPreview);
-                        sheet.attr("src", game.locals["gameList"][$(this).attr("index")].info.img.current);
-                        sheet.css("max-height", "200px");
+                   var sheet = $("<img>").appendTo(sheetPreview);
+                   sheet.attr("src", game.locals["gameList"][$(this).attr("index")].info.img.current);
+                   sheet.css("max-height", "200px");
 
-                        gameList.children().each(function() {
-                          $(this).removeClass("highlight");
-                        });
-                        $(this).addClass("highlight");
-                        button.show();
-                      });
-                      var child = $("<p>").appendTo(gameSelect);
-                      child.addClass("fit-xy alttext flexmiddle subtitle");
-                      child.css("background", "linear-gradient(to top, rgba(0,0,0,0), rgba(0,0,0,0.4), rgba(0,0,0,0))")
-                      child.text(sync.rawVal(game.locals["gameList"][i].info.name));
-                      child.hide();
+                   gameList.children().each(function() {
+                     $(this).removeClass("highlight");
+                   });
+                   $(this).addClass("highlight");
+                   button.show();
+                 });
+                 var child = $("<p>").appendTo(gameSelect);
+                 child.addClass("fit-xy alttext flexmiddle subtitle");
+                 child.css("background", "linear-gradient(to top, rgba(0,0,0,0), rgba(0,0,0,0.4), rgba(0,0,0,0))")
+                 child.text(sync.rawVal(game.locals["gameList"][i].info.name));
+                 child.hide();
 
-                      gameSelect.hover(function(){
-                        $(this).children().fadeIn();
-                      },
-                      function(){
-                        $(this).children().fadeOut();
-                      });
-                    }
-                  }
+                 gameSelect.hover(function(){
+                   $(this).children().fadeIn();
+                 },
+                 function(){
+                   $(this).children().fadeOut();
+                 });
+               }
+             }
 
-                  var gamePreview = $("<div>").appendTo(confirmation);
-                  gamePreview.addClass("flexcolumn flex");
+             var gamePreview = $("<div>").appendTo(confirmation);
+             gamePreview.addClass("flexcolumn flex");
 
-                  var previewWrap = $("<div>");
+             var previewWrap = $("<div>");
 
-                  var sheetPreview = $("<div>").appendTo(gamePreview);
-                  sheetPreview.addClass("flexcolumn fit-x flexmiddle");
-                  previewWrap.css("height", "400px");
+             var sheetPreview = $("<div>").appendTo(gamePreview);
+             sheetPreview.addClass("flexcolumn fit-x flexmiddle");
+             previewWrap.css("height", "400px");
 
-                  var gameWrap = $("<div>").appendTo(gamePreview);
-                  gameWrap.addClass("flexcolumn flexaround flex");
+             var gameWrap = $("<div>").appendTo(gamePreview);
+             gameWrap.addClass("flexcolumn flexaround flex");
 
-                  var button = $("<button>").appendTo(gameWrap);
-                  button.addClass("flexmiddle highlight alttext");
-                  button.css("font-size", "2em");
-                  button.append("Create");
-                  button.hide();
-                  button.click(function(){
-                    var data = game.locals["createSession"].data;
-                    var templates = data.templates;
-                    ui_prompt({
-                      target : $(this),
-                      inputs : {
-                        "File Name" : {placeholder : "No Special Characters"}
-                      },
-                      style : {"z-index" : "10000000000000000000000000"},
-                      click : function(ev, inputs) {
-                        if (inputs["File Name"].val()) {
-                          if (!util.contains(worldList, inputs["File Name"].val()+".world")) {
-                            $.ajax({
-                              url: "/loadGame",
-                              error: function(code) {
-                                console.log(code);
-                              },
-                              dataType: "json",
-                              data : {gameName : inputs["File Name"].val()+".world", gameKey : data.game},
-                              success: function(resData) {
-                                window.location.href = "/join";
-                                layout.coverlay($("#splash-screen"), 500);
-                              },
-                              type: 'GET'
-                            });
-                          }
-                          else {
-                            alert("A world already exists with that name");
-                          }
-                        }
-                      }
-                    });
-                  });
-                },
-                type : "GET",
+             var button = $("<button>").appendTo(gameWrap);
+             button.addClass("flexmiddle highlight alttext");
+             button.css("font-size", "2em");
+             button.append("Create");
+             button.hide();
+             button.click(function(){
+               var data = game.locals["createSession"].data;
+               var templates = data.templates;
+               ui_prompt({
+                 target : $(this),
+                 inputs : {
+                   "File Name" : {placeholder : "No Special Characters"}
+                 },
+                 style : {"z-index" : "10000000000000000000000000"},
+                 click : function(ev, inputs) {
+                   if (inputs["File Name"].val()) {
+                     if (!util.contains(worldList, inputs["File Name"].val()+".world")) {
+                       $.ajax({
+                         url: "/loadGame",
+                         error: function(code) {
+                           console.log(code);
+                         },
+                         dataType: "json",
+                         data : {gameName : inputs["File Name"].val()+".world", gameKey : data.game},
+                         success: function(resData) {
+                           window.location.href = "/join";
+                           layout.coverlay($("#splash-screen"), 500);
+                         },
+                         type: 'GET'
+                       });
+                     }
+                     else {
+                       alert("A world already exists with that name");
+                     }
+                   }
+                 }
+               });
              });
            },
-           type: 'GET'
-         });
+           type : "GET",
+        });
         });
       }, 800);
     });
