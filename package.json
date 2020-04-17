@@ -4,7 +4,7 @@
   "description": "Worldbuilding and Tabletop Gaming, without the hassle of online!",
   "main": "main.js",
   "scripts": {
-    "start": "electron ."
+    "start": "yarn run gulp all && yarn run electron ."
   },
   "keywords": [],
   "author": "Game Master LLC",
