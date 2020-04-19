@@ -4,4 +4,5 @@ public/workshop/
 public/worlds/
 public/bin/core\.js
 public/bin/standalone\.js
+options.json
 !.keep
